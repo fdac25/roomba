@@ -1,0 +1,5 @@
+Place Roomba on ground.
+plug in wireless module to laptop
+start laptop software
+plug in Roomba Arduino battery
+record results
