@@ -1,4 +1,3 @@
-Setup of reciever completed
 21, 0
 11, -2
 14, 0

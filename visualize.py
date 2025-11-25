@@ -1,12 +1,10 @@
 import math
 import matplotlib.pyplot as plt
 
-FILENAME = "Run2_extra_obstacles.txt"
-
-MODE = "filtered"
+FILENAME = "Data/NoObstaclesRun1.txt"
 
 MAX_DIST_MM_GLOBAL = 500        # ignore |dist| > 500 mm per 50 ms
-MAX_ANGLE_DEG_GLOBAL = 45       # ignore |angle| > 45 deg per 50 ms
+MAX_ANGLE_DEG_GLOBAL = 361       # ignore |angle| > 45 deg per 50 ms
 
 ANGLE_NOISE_DEG = 3             # |angle| below this while moving -> 0 (straight)
 TURN_ONLY_DIST_MM = 3           # |dist| <= this AND |angle| >= ANGLE_NOISE_DEG -> turn in place
@@ -30,7 +28,7 @@ def load_dist_angle(filename):
                 continue
     return data
 
-def integrate_path(dist_angle_list, mode="filtered"):
+def integrate_path(dist_angle_list):
     x, y, theta = 0.0, 0.0, 0.0  # meters, meters, radians
     xs = [x]
     ys = [y]
@@ -40,15 +38,6 @@ def integrate_path(dist_angle_list, mode="filtered"):
             continue
 
         d = dist_mm / 1000.0  # mm -> m
-
-        if mode == "raw":
-            dtheta = math.radians(angle_deg)
-            x += d * math.cos(theta)
-            y += d * math.sin(theta)
-            theta += dtheta
-            xs.append(x)
-            ys.append(y)
-            continue
 
         # Case A: almost no movement, noticeable angle ⇒ turn in place
         if abs(dist_mm) <= TURN_ONLY_DIST_MM and abs(angle_deg) >= ANGLE_NOISE_DEG:
@@ -82,20 +71,21 @@ def main():
         print("No usable data found in file:", FILENAME)
         return
 
-    xs, ys = integrate_path(data, mode=MODE)
+    xs, ys = integrate_path(data)
 
     plt.figure(figsize=(6, 6))
     plt.plot(xs, ys, marker=".", linewidth=1)
     plt.scatter(xs[0], ys[0], label="Start", s=60)
     plt.scatter(xs[-1], ys[-1], label="End", s=60)
 
-    plt.title(f"Roomba Path ({MODE}) from {FILENAME}")
+    plt.title(f"Roomba Path from {FILENAME}")
     plt.xlabel("X (meters)")
     plt.ylabel("Y (meters)")
     plt.axis("equal")
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
+    plt.savefig("roomba_path.png")
     plt.show()
 
 
